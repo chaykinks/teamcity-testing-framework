@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
 import lombok.Builder;
+import org.example.teamcity.api.annotations.Random;
 
 @Builder
 @Data
@@ -12,6 +13,8 @@ import lombok.Builder;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User extends BaseModel {
+    @Random
     private String username;
+    @Random
     private String password;
 }
