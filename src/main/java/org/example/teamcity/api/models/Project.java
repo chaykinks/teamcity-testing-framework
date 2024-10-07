@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.teamcity.api.annotations.Random;
 
 @Builder
 @Data
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Project extends BaseModel {
     private String id;
+    @Random
     private String name;
     @Builder.Default
     private String locator = "_Root";

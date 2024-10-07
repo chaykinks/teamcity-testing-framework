@@ -1,6 +1,7 @@
 package org.example.teamcity.api.models;
 
-import io.qameta.allure.internal.shadowed.jackson.annotation.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class User extends BaseModel {
     private String username;
     @Random
     private String password;
+    private Roles roles;
 }
