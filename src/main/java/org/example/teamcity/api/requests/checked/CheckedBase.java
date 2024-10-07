@@ -1,4 +1,4 @@
-package org.example.teamcity.api.requests.unchecked;
+package org.example.teamcity.api.requests.checked;
 
 import org.example.teamcity.api.enums.Endpoint;
 import org.example.teamcity.api.models.BaseModel;
