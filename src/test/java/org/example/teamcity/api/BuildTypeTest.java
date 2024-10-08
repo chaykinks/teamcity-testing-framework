@@ -23,7 +23,19 @@ import static org.example.teamcity.api.generators.TestDataGenerator.generate;
 public class BuildTypeTest extends BaseApiTest {
     @Test(description = "User should be able to create build type", groups = {"Positive", "CRUD"})
     public void userCreatesBuildTypeTest() {
-        var user = generate(User.class);
+        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(testData.getUser()));
+
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+
+        var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
+
+        softy.assertEquals(testData.getBuildType().getName(), createdBuildType.getName(), "Build type name is not correct");
+    }
+
+        /*var user = generate(User.class);
 
         superUserCheckRequests.getRequest(USERS).create(user);
         var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(user));
@@ -38,7 +50,7 @@ public class BuildTypeTest extends BaseApiTest {
 
         var createdBuildType = userCheckRequests.<BuildType>getRequest(BUILD_TYPES).read(buildType.getId());
 
-        softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not correct");
+        softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not correct");*/
 
         /*var user = generate(User.class);
 
@@ -70,11 +82,27 @@ public class BuildTypeTest extends BaseApiTest {
 
             softy.assertEquals(buildType.getName(), createdBuildType.getName(), "Build type name is not correct");
         });*/
-    }
+
 
     @Test(description = "User should not be able to create two build types with the same id", groups = {"Negative", "CRUD"})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
-        var user = generate(User.class);
+        var buildTypeWithSameId = generate(Arrays.asList(testData.getProject()), BuildType.class, testData.getBuildType().getId());
+
+        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+
+        var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(testData.getUser()));
+
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+
+        userCheckRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+        new UncheckedBase(Specifications.authorizedSpec(testData.getUser()), BUILD_TYPES)
+                .create(buildTypeWithSameId)
+                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
+                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(testData.getBuildType().getId())));
+    }
+
+
+        /*var user = generate(User.class);
 
         superUserCheckRequests.getRequest(USERS).create(user);
         var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(user));
@@ -91,14 +119,14 @@ public class BuildTypeTest extends BaseApiTest {
                 .create(buildType2)
                 .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
                 .body(Matchers.containsString(("The build configuration / template ID \"%s\" is already used by another " +
-                        "configuration or template").formatted(buildType1.getId())));
+                        "configuration or template").formatted(buildType1.getId())));*/
 
         /*step("Create user");
         step("Create project by user");
         step("Create buildType1 for project by user");
         step("Create buildType2 with same id as buildType1 for project by user");
         step("Check buildType2 was not created with bad request code");*/
-    }
+
 
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "Roles"})
     public void projectAdminCreatesBuildTypeTest() {
