@@ -3,6 +3,7 @@ package org.example.teamcity.api;
 import org.apache.http.HttpStatus;
 import org.example.teamcity.api.models.BuildType;
 import org.example.teamcity.api.models.Project;
+import org.example.teamcity.api.models.Roles;
 import org.example.teamcity.api.models.User;
 import org.example.teamcity.api.requests.CheckedRequests;
 import org.example.teamcity.api.requests.unchecked.UncheckedBase;
@@ -131,6 +132,14 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "Roles"})
     public void projectAdminCreatesBuildTypeTest() {
+
+        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(testData.getUser()));
+
+        userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+
+        testData.getUser().setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + testData.getProject().getId()));
+
         step("Create user");
         step("Create project");
         step("Grant user PROJECT_ADMIN role in project");
@@ -141,6 +150,24 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test(description = "Project admin should not be able to create build type for not their project", groups = {"Negative", "Roles"})
     public void projectAdminCreatesBuildTypeForAnotherUserProjectTest() {
+
+        superUserCheckRequests.getRequest(PROJECTS).create(testData.getProject());
+        var project_2 = superUserCheckRequests.<Project>getRequest(PROJECTS).create(generate(Project.class));
+
+        testData.getUser().setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + testData.getProject().getId()));
+
+        superUserCheckRequests.<User>getRequest(USERS).create(testData.getUser());
+        var user_2 = generate(User.class);
+        user_2.setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + project_2.getId()));
+
+        superUserCheckRequests.<User>getRequest(USERS).create(user_2);
+
+        new UncheckedBase(Specifications.authorizedSpec(user_2), BUILD_TYPES)
+                .create(testData.getBuildType())
+                        .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN)
+                      .body(Matchers.containsString("You do not have enough permissions to edit project with id: %s ".formatted(testData.getProject().getId())));
+
+
         step("Create user1");
         step("Create project1");
         step("Grant user1 PROJECT_ADMIN role in project1");
