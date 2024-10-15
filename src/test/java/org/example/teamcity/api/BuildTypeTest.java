@@ -133,7 +133,17 @@ public class BuildTypeTest extends BaseApiTest {
     @Test(description = "Project admin should be able to create build type for their project", groups = {"Positive", "Roles"})
     public void projectAdminCreatesBuildTypeTest() {
 
-        superUserCheckRequests.getRequest(USERS).create(testData.getUser());
+        superUserCheckRequests.getRequest(PROJECTS).create(testData.getProject());
+
+        testData.getUser().setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + testData.getProject().getId()));
+        superUserCheckRequests.<User>getRequest(USERS).create(testData.getUser());
+
+        new UncheckedBase(Specifications.authorizedSpec(testData.getUser()), BUILD_TYPES)
+                .create(testData.getBuildType())
+                .then().assertThat().statusCode(HttpStatus.SC_OK)
+                .body(Matchers.containsString(testData.getBuildType().getName()));
+
+        /*superUserCheckRequests.getRequest(USERS).create(testData.getUser());
         var userCheckRequests = new CheckedRequests(Specifications.authorizedSpec(testData.getUser()));
 
         userCheckRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
@@ -145,7 +155,7 @@ public class BuildTypeTest extends BaseApiTest {
         step("Grant user PROJECT_ADMIN role in project");
 
         step("Create buildType for project by user (PROJECT_ADMIN)");
-        step("Check buildType was created successfully");
+        step("Check buildType was created successfully");*/
     }
 
     @Test(description = "Project admin should not be able to create build type for not their project", groups = {"Negative", "Roles"})
@@ -165,7 +175,8 @@ public class BuildTypeTest extends BaseApiTest {
         new UncheckedBase(Specifications.authorizedSpec(user_2), BUILD_TYPES)
                 .create(testData.getBuildType())
                         .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN)
-                      .body(Matchers.containsString("You do not have enough permissions to edit project with id: %s ".formatted(testData.getProject().getId())));
+                        .body(Matchers.containsString(("You do not have enough permissions to edit project with id: " +
+                                "%s").formatted(testData.getProject().getId())));
 
 
         step("Create user1");
