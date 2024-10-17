@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.teamcity.api.annotations.Parameterizable;
+import org.example.teamcity.api.enums.RoleId;
 
 @Builder
 @Data
@@ -15,7 +16,7 @@ import org.example.teamcity.api.annotations.Parameterizable;
 public class Role extends BaseModel {
     @Parameterizable
     @Builder.Default
-    private String roleId = "SYSTEM_ADMIN";
+    private RoleId roleId = RoleId.SYSTEM_ADMIN;
     @Parameterizable
     @Builder.Default
     private String scope = "g";
