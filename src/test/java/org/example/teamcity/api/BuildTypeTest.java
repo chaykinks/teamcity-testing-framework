@@ -1,6 +1,7 @@
 package org.example.teamcity.api;
 
 import org.apache.http.HttpStatus;
+import org.example.teamcity.api.enums.RoleId;
 import org.example.teamcity.api.models.BuildType;
 import org.example.teamcity.api.models.Project;
 import org.example.teamcity.api.models.Roles;
@@ -60,7 +61,7 @@ public class BuildTypeTest extends BaseApiTest {
 
         superUserCheckRequests.getRequest(PROJECTS).create(testData.getProject());
 
-        testData.getUser().setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + testData.getProject().getId()));
+        testData.getUser().setRoles(generate(Roles.class, RoleId.PROJECT_ADMIN, "p:" + testData.getProject().getId()));
         superUserCheckRequests.<User>getRequest(USERS).create(testData.getUser());
 
         new UncheckedBase(Specifications.authorizedSpec(testData.getUser()), BUILD_TYPES)
@@ -75,11 +76,11 @@ public class BuildTypeTest extends BaseApiTest {
         superUserCheckRequests.getRequest(PROJECTS).create(testData.getProject());
         var project_2 = superUserCheckRequests.<Project>getRequest(PROJECTS).create(generate(Project.class));
 
-        testData.getUser().setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + testData.getProject().getId()));
+        testData.getUser().setRoles(generate(Roles.class, RoleId.PROJECT_ADMIN, "p:" + testData.getProject().getId()));
 
         superUserCheckRequests.<User>getRequest(USERS).create(testData.getUser());
         var user_2 = generate(User.class);
-        user_2.setRoles(generate(Roles.class, "PROJECT_ADMIN", "p:" + project_2.getId()));
+        user_2.setRoles(generate(Roles.class, RoleId.PROJECT_ADMIN, "p:" + project_2.getId()));
 
         superUserCheckRequests.<User>getRequest(USERS).create(user_2);
 
