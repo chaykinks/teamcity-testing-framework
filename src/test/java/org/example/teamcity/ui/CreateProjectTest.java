@@ -4,6 +4,7 @@ import com.codeborne.selenide.Condition;
 import org.example.teamcity.api.enums.Endpoint;
 import org.example.teamcity.api.models.Project;
 import org.example.teamcity.ui.pages.ProjectPage;
+import org.example.teamcity.ui.pages.ProjectsPage;
 import org.example.teamcity.ui.pages.admin.CreateProjectPage;
 import org.testng.annotations.Test;
 import static io.qameta.allure.Allure.step;
@@ -32,7 +33,11 @@ public class CreateProjectTest extends BaseUiTest {
         ProjectPage.open(createdProject.getId())
                 .title.shouldHave(Condition.exactText(testData.getProject().getName()));
 
+        var foundProjects = ProjectsPage.open()
+                .getProjects().stream()
+                .anyMatch(project -> project.getName().equals(testData.getProject().getName()));
 
+        softy.assertTrue(foundProjects);
     }
 
     @Test(description = "User should not be able to craete project without name", groups = {"Negative"})
